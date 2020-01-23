@@ -7,9 +7,21 @@ unsigned long interval;
 unsigned long currentMillis;
 unsigned long previousMillis;
 int ledState;
+byte count;
 
+#define COUNT_PIN0 PIN2
+#define COUNT_PIN1 PIN3
+#define COUNT_PIN2 PIN4
 
 void setup() {
+  count = 0;
+  pinMode(COUNT_PIN0, OUTPUT);
+  pinMode(COUNT_PIN1, OUTPUT);
+  pinMode(COUNT_PIN2, OUTPUT);
+  digitalWrite(COUNT_PIN0, LOW);
+  digitalWrite(COUNT_PIN1, LOW);
+  digitalWrite(COUNT_PIN2, LOW);
+
   pinMode(LED_PIN, OUTPUT);
   // put your setup code here, to run once:
   ledState = LOW;
@@ -32,9 +44,18 @@ void loop() {
   interval = 60000/bpm;
 
   currentMillis = millis();
+
+  // tick
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     ledState = HIGH;
+    count++;
+    if (count > 7) { 
+      count = 0;
+    }
+    digitalWrite(COUNT_PIN0, bitRead(count, 0));
+    digitalWrite(COUNT_PIN1, bitRead(count, 1));
+    digitalWrite(COUNT_PIN2, bitRead(count, 2));
   }
 
   if (currentMillis - previousMillis >= 10) {
@@ -43,6 +64,5 @@ void loop() {
 
   digitalWrite(LED_PIN, ledState);
   // print out the value you read:
-  Serial.println(interval);
   delay(1);        // delay in between reads for stability
 }
