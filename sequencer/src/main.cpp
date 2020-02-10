@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#define LED_PIN PIN7
+#define LED_PIN PD1
 
 int sensorValue;
 int bpm;
@@ -7,39 +7,22 @@ unsigned long interval;
 unsigned long currentMillis;
 unsigned long previousMillis;
 int ledState;
-byte count;
+byte idx;
+byte previousIdx;
 
-#define COUNT_PIN0 PIN2
-#define COUNT_PIN1 PIN3
-#define COUNT_PIN2 PIN4
-#define COUNT_PIN3 PIN5
-#define COUNT_PIN4 PIN6
-#define COUNT_PIN5 PIN7
-#define COUNT_PIN6 PIN8
-#define COUNT_PIN7 PIN9
+int pins[] = {9, 8, PD7, PD6, PD5, PD4, PD3, PD2 };
+int pinIdx = 0;
 
 void setup() {
-  count = 0;
-  pinMode(COUNT_PIN0, OUTPUT);
-  pinMode(COUNT_PIN1, OUTPUT);
-  pinMode(COUNT_PIN2, OUTPUT);
-  pinMode(COUNT_PIN3, OUTPUT);
-  pinMode(COUNT_PIN4, OUTPUT);
-  pinMode(COUNT_PIN5, OUTPUT);
-  pinMode(COUNT_PIN6, OUTPUT);
-  pinMode(COUNT_PIN7, OUTPUT);
-
-  digitalWrite(COUNT_PIN0, HIGH);
-  digitalWrite(COUNT_PIN1, LOW);
-  digitalWrite(COUNT_PIN2, LOW);
-  digitalWrite(COUNT_PIN3, LOW);
-  digitalWrite(COUNT_PIN4, LOW);
-  digitalWrite(COUNT_PIN5, LOW);
-  digitalWrite(COUNT_PIN6, LOW);
-  digitalWrite(COUNT_PIN7, LOW);
+  for (size_t i = 0; i < 8; i++) {
+    pinMode(pins[i], OUTPUT);
+    digitalWrite(pins[i], LOW);
+  }
 
   pinMode(LED_PIN, OUTPUT);
   // put your setup code here, to run once:
+  idx = 0;
+  previousIdx = 7;
   ledState = LOW;
   currentMillis = 0;
   previousMillis = 0;
@@ -65,13 +48,14 @@ void loop() {
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
     ledState = HIGH;
-    count++;
-    if (count > 7) { 
-      count = 0;
-    }
-    digitalWrite(COUNT_PIN0, bitRead(count, 0));
-    digitalWrite(COUNT_PIN1, bitRead(count, 1));
-    digitalWrite(COUNT_PIN2, bitRead(count, 2));
+
+    digitalWrite(pins[previousIdx], LOW);
+    digitalWrite(pins[idx], HIGH);
+    previousIdx = idx;
+    idx++;
+    if (idx > 7) {
+      idx = 0;
+    }    
   }
 
   if (currentMillis - previousMillis >= 10) {
