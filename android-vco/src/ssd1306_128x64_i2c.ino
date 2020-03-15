@@ -25,7 +25,10 @@ All text above, and the splash screen must be included in any redistribution
 Adafruit_SSD1306 display(OLED_RESET);
 
 const int buttonPin = 2;     // the number of the pushbutton pin
+const int pwmPin = 3;
 int buttonState = 0;         // variable for reading the pushbutton status
+byte dutyCycle = 0;
+byte dutyRising = 1;
 
 Encoder myEnc(8, 9);
 
@@ -182,6 +185,8 @@ void handleButtonPress() {
 
 void setup() {                
   pinMode(buttonPin, INPUT);
+  pinMode(pwmPin, OUTPUT);
+  
   attachInterrupt(digitalPinToInterrupt(buttonPin), &handleButtonPress, CHANGE);
 
   Serial.begin(9600);
@@ -195,30 +200,57 @@ void setup() {
   display.setCursor(8,0);
   display.drawBitmap(9, 20, cursor, 8, 11, WHITE);
   display.display();
+  delay(10);
+  analogWrite(pwmPin, dutyCycle);
 }
 
 long oldPosition  = -999;
 long waveformIdx = 0;
 
 void loop() {
-  long newPosition = myEnc.read();
-  if (newPosition != oldPosition) {
-    oldPosition = newPosition;
-  
-    if (newPosition % 4 == 0) {
-      if (buttonState == 0) {
-        if (cursorIdx == 0) {
-          waveformIdx = (newPosition/4)%4;
-          display.drawBitmap(22, 20, clear_wav, 56, 18, BLACK);
-          display.drawBitmap(22, 20, waveforms[waveformIdx], 56, 18, WHITE);
-          display.display();
-        }
-      } else {
-        display.drawBitmap(9, cursor_y[cursorIdx], clear_wav, 8, 11, BLACK);
-        cursorIdx = (newPosition/4)%3;
-        display.drawBitmap(9, cursor_y[cursorIdx], cursor, 8, 11, WHITE);
-        display.display();
-      }
-    }
+  if (dutyCycle == 255){
+    dutyRising = 0;
   }
+
+  if (dutyCycle == 0) {
+    dutyRising = 1;
+  }
+
+  if (dutyRising) {
+    dutyCycle++;
+  } else {
+    dutyCycle--;
+  }
+  analogWrite(pwmPin, dutyCycle);
+  delay(30);
+
+  // long newPosition = myEnc.read();
+  // if (newPosition != oldPosition) {
+  //   oldPosition = newPosition;
+  
+  //   if (newPosition % 4 == 0) {
+  //     if (buttonState == 0) {
+  //       if (cursorIdx == 0) {
+  //         waveformIdx = (newPosition/4)%4;
+  //         display.drawBitmap(22, 20, clear_wav, 56, 18, BLACK); 
+  //         display.drawBitmap(22, 20, waveforms[waveformIdx], 56, 18, WHITE);
+  //         display.display();
+  //       } else {
+  //         if (newPosition > oldPosition) {
+  //           dutyCycle++; 
+  //         } else {
+  //           dutyCycle--;
+  //         }
+  //         analogWrite(pwmPin, dutyCycle);
+  //         delay(5);
+  //         Serial.println(dutyCycle);
+  //       }
+  //     } else {
+  //       display.drawBitmap(9, cursor_y[cursorIdx], clear_wav, 8, 11, BLACK);
+  //       cursorIdx = (newPosition/4)%3;
+  //       display.drawBitmap(9, cursor_y[cursorIdx], cursor, 8, 11, WHITE);
+  //       display.display();
+  //     }
+  //   }
+  // }
 }
