@@ -26,8 +26,6 @@ Adafruit_SSD1306 display(OLED_RESET);
 
 const int buttonPin = 2;     // the number of the pushbutton pin
 int buttonState = 0;         // variable for reading the pushbutton status
-int oldButtonState = 0;         // variable for reading the pushbutton status
-
 
 Encoder myEnc(8, 9);
 
@@ -148,24 +146,17 @@ static unsigned char PROGMEM const saw_tooth[] =
 
   static unsigned char PROGMEM const cursor[] =
 {
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
-  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B10000000, 
+  B11000000, 
+  B10100000, 
+  B10010000, 
+  B10001000, 
+  B10000100, 
+  B10001000, 
+  B10010000, 
+  B10100000, 
+  B11000000, 
+  B10000000, 
  };
 
 static const unsigned char* waveforms[4] = {
@@ -175,8 +166,23 @@ static const unsigned char* waveforms[4] = {
   saw_tooth
 };
 
-void setup()   {                
+static const int16_t cursor_y[3] = {
+  20, 40, 60
+};
+
+int cursorIdx = 0;
+
+void handleButtonPress() {
+  if (digitalRead(buttonPin) == HIGH) {
+    buttonState = 0;
+  } else {
+    buttonState = 1;
+  }
+}
+
+void setup() {                
   pinMode(buttonPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(buttonPin), &handleButtonPress, CHANGE);
 
   Serial.begin(9600);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
@@ -187,7 +193,7 @@ void setup()   {
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(8,0);
-
+  display.drawBitmap(9, 20, cursor, 8, 11, WHITE);
   display.display();
 }
 
@@ -195,25 +201,24 @@ long oldPosition  = -999;
 long waveformIdx = 0;
 
 void loop() {
-  buttonState = digitalRead(buttonPin);
-  if (buttonState != oldButtonState) {
-    oldButtonState = buttonState;
-    if (buttonState == LOW) {
-      Serial.println("ON");
-    } else {
-      Serial.println("OFF");
-    }
-  }
-  
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
   
     if (newPosition % 4 == 0) {
-      waveformIdx = (newPosition/4)%4;
-      display.drawBitmap(9, 20, clear_wav, 56, 18, BLACK);
-      display.drawBitmap(9, 20, waveforms[waveformIdx], 56, 18, WHITE);
-      display.display();
+      if (buttonState == 0) {
+        if (cursorIdx == 0) {
+          waveformIdx = (newPosition/4)%4;
+          display.drawBitmap(22, 20, clear_wav, 56, 18, BLACK);
+          display.drawBitmap(22, 20, waveforms[waveformIdx], 56, 18, WHITE);
+          display.display();
+        }
+      } else {
+        display.drawBitmap(9, cursor_y[cursorIdx], clear_wav, 8, 11, BLACK);
+        cursorIdx = (newPosition/4)%3;
+        display.drawBitmap(9, cursor_y[cursorIdx], cursor, 8, 11, WHITE);
+        display.display();
+      }
     }
   }
 }
