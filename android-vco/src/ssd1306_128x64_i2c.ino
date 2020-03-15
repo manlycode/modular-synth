@@ -23,8 +23,11 @@ All text above, and the splash screen must be included in any redistribution
 
 #define OLED_RESET 4
 Adafruit_SSD1306 display(OLED_RESET);
-char cstr[16];
-String str;
+
+const int buttonPin = 2;     // the number of the pushbutton pin
+int buttonState = 0;         // variable for reading the pushbutton status
+int oldButtonState = 0;         // variable for reading the pushbutton status
+
 
 Encoder myEnc(8, 9);
 
@@ -143,6 +146,28 @@ static unsigned char PROGMEM const saw_tooth[] =
   B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
  };
 
+  static unsigned char PROGMEM const cursor[] =
+{
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, 
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+  B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111,
+ };
+
 static const unsigned char* waveforms[4] = {
   triangle_wave,
   sine_wave,
@@ -151,6 +176,8 @@ static const unsigned char* waveforms[4] = {
 };
 
 void setup()   {                
+  pinMode(buttonPin, INPUT);
+
   Serial.begin(9600);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
   display.clearDisplay();
@@ -168,10 +195,19 @@ long oldPosition  = -999;
 long waveformIdx = 0;
 
 void loop() {
+  buttonState = digitalRead(buttonPin);
+  if (buttonState != oldButtonState) {
+    oldButtonState = buttonState;
+    if (buttonState == LOW) {
+      Serial.println("ON");
+    } else {
+      Serial.println("OFF");
+    }
+  }
+  
   long newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    Serial.println(newPosition);
   
     if (newPosition % 4 == 0) {
       waveformIdx = (newPosition/4)%4;
