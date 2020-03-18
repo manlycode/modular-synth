@@ -1,0 +1,66 @@
+{
+    "configurations": [
+        {
+            "name": "!!! WARNING !!! AUTO-GENERATED FILE, PLEASE DO NOT MODIFY IT AND USE https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags"
+        },
+        {
+            "name": "Mac",
+            "macFrameworkPath": [],
+            "includePath": [
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/include",
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/src",
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Encoder-1.4.1",
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Encoder-1.4.1/utility",
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Adafruit_SSD1306",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Adafruit_GFX",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/cores/arduino",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                "/Users/manlycode/.platformio/packages/tool-unity",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/include",
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/src",
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Encoder-1.4.1",
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Encoder-1.4.1/utility",
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Adafruit_SSD1306",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
+                    "/Users/manlycode/git/manlycode/modular-synth/android-vco/lib/Adafruit_GFX",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/cores/arduino",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/variants/eightanaloginputs",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/HID/src",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
+                    "/Users/manlycode/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
+                    "/Users/manlycode/.platformio/packages/tool-unity",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=40201",
+                "ARDUINO_AVR_PRO",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega328P__",
+                ""
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "/Users/manlycode/.platformio/packages/toolchain-atmelavr/bin/avr-gcc",
+            "compilerArgs": [
+                "-mmcu=atmega328p",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
