@@ -13,5 +13,6 @@
 #define RED_LED2 6
 
 // IO Pins
+#define BUTTON_PIN 4
 #define INPUT_PIN A3
 #define OUTPUT_PIN 9
