@@ -4,33 +4,38 @@
 
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
-#include <tables/sin2048_int8.h> // sine table for oscillator
+#include <Smooth.h>
+#include <tables/sin4096_int8.h> // sine table for oscillator
 #include <tables/triangle2048_int8.h>
 #include <tables/saw2048_int8.h> // sine table for oscillator
 #include <tables/square_no_alias_2048_int8.h> // sine table for oscillator
-
-// General Variables
-Encoder myEnc(PIN3, PIN2);
-
-long oldPosition  = -999;
-long newPosition = oldPosition;
-float controlVoltage = 0.0f;
-float frequency = 440.0f;
-uint8_t oldMode = 0;
-uint8_t modeIdx = 0;
-
+#include <mozzi_fixmath.h>
+#include <frequency_table.h>
 
 const uint8_t greenPins[] = { GRN_LED1, GRN_LED2, GRN_LED3, GRN_LED4 };
 const uint8_t redPins[] = { RED_LED1, RED_LED2 };
 
+
+Encoder myEnc(PIN3, PIN2);
+
+long oldPosition  = -999;
+long newPosition = oldPosition;
+
+float frequency = 0.0f;
+uint16_t frequencyIdx = 0;
+
+uint8_t oldMode = 0;
+uint8_t modeIdx = 0;
+
+
 uint8_t currentPin;
  
-
 // Mozzi Variables
-Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
+Oscil <SIN4096_NUM_CELLS, AUDIO_RATE> aSin(SIN4096_DATA);
 Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSquare(SQUARE_NO_ALIAS_2048_DATA);
+Smooth <int> frequencyIdxSmoother(0.8f);
 
 #define CONTROL_RATE 64 // Hz, powers of 2 are most reliable
 
@@ -55,17 +60,15 @@ void setup() {
     pinMode(currentPin, OUTPUT);
   }
 
-
   // Mozzi setup
   startMozzi(CONTROL_RATE); // :)
-  aSin.setFreq(frequency); // set the frequency
+  aSin.setFreq(frequency);
 }
 
 void updateControl(){
   // put changing controls in here
-  controlVoltage = ((float)mozziAnalogRead(INPUT_PIN))/204.6f;
-  frequency = pow(2.0, controlVoltage);
-  Serial.println(frequency);
+  frequencyIdx = frequencyIdxSmoother.next(mozziAnalogRead(INPUT_PIN));
+  frequency = pgm_read_float_near(FREQUENCY_TABLE_DATA + frequencyIdx);
 
   newPosition = myEnc.read();
   if (newPosition != oldPosition) {
@@ -96,7 +99,6 @@ void updateControl(){
     return aSquare.setFreq(frequency);
     break;
   }
-  
 }
 
 
