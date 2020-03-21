@@ -14,8 +14,8 @@ Encoder myEnc(PIN3, PIN2);
 
 long oldPosition  = -999;
 long newPosition = oldPosition;
-uint controlVoltage = 0;
-int frequency = 440;
+float controlVoltage = 0.0f;
+float frequency = 440.0f;
 uint8_t oldMode = 0;
 uint8_t modeIdx = 0;
 
@@ -63,10 +63,14 @@ void setup() {
 
 void updateControl(){
   // put changing controls in here
+  controlVoltage = ((float)mozziAnalogRead(INPUT_PIN))/204.6f;
+  frequency = pow(2.0, controlVoltage);
+  Serial.println(frequency);
+
   newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    modeIdx = (newPosition / 4) % 4;
+    modeIdx = (newPosition / 4) % 4; 
     if (oldMode != modeIdx) {
       digitalWrite(greenPins[oldMode], LOW);
       digitalWrite(greenPins[modeIdx], HIGH);
@@ -74,7 +78,6 @@ void updateControl(){
     }
   }
 
-  controlVoltage = mozziAnalogRead(INPUT_PIN);
   switch (modeIdx) {
   case 0:
     return aSin.setFreq(frequency);
