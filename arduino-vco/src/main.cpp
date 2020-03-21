@@ -5,6 +5,9 @@
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
 #include <tables/sin2048_int8.h> // sine table for oscillator
+#include <tables/triangle2048_int8.h>
+#include <tables/saw2048_int8.h> // sine table for oscillator
+#include <tables/square_no_alias_2048_int8.h> // sine table for oscillator
 
 // General Variables
 Encoder myEnc(PIN3, PIN2);
@@ -12,15 +15,23 @@ Encoder myEnc(PIN3, PIN2);
 long oldPosition  = -999;
 long newPosition = oldPosition;
 uint controlVoltage = 0;
+int frequency = 440;
+uint8_t oldMode = 0;
+uint8_t modeIdx = 0;
+
 
 const uint8_t greenPins[] = { GRN_LED1, GRN_LED2, GRN_LED3, GRN_LED4 };
 const uint8_t redPins[] = { RED_LED1, RED_LED2 };
 
 uint8_t currentPin;
-
+ 
 
 // Mozzi Variables
 Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
+Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
+Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
+Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSquare(SQUARE_NO_ALIAS_2048_DATA);
+
 #define CONTROL_RATE 64 // Hz, powers of 2 are most reliable
 
 void setup() {
@@ -34,54 +45,81 @@ void setup() {
   for (uint8_t i = 0; i < 4; i++) {
     currentPin = greenPins[i];
     pinMode(currentPin, OUTPUT);
-    delay(100);
-    digitalWrite(currentPin, HIGH);
-    delay(100);
-    digitalWrite(currentPin, LOW);
   }
+
+  digitalWrite(greenPins[modeIdx], HIGH);
 
   // Setup Red LEDs
   for (uint8_t i = 0; i < 2; i++) {
     currentPin = redPins[i];
     pinMode(currentPin, OUTPUT);
-    for (uint8_t j = 0; j < 255; j++) {
-      analogWrite(currentPin, j);
-      delay(1);
-    }
-
-    for (uint8_t j = 255; j > 0; j--) {
-      analogWrite(currentPin, j);
-      delay(1);
-    }
-    analogWrite(currentPin, 0);
   }
 
-  delay(1000);
 
   // Mozzi setup
   startMozzi(CONTROL_RATE); // :)
-  aSin.setFreq(440); // set the frequency
+  aSin.setFreq(frequency); // set the frequency
 }
 
 void updateControl(){
   // put changing controls in here
+  newPosition = myEnc.read();
+  if (newPosition != oldPosition) {
+    oldPosition = newPosition;
+    modeIdx = (newPosition / 4) % 4;
+    if (oldMode != modeIdx) {
+      digitalWrite(greenPins[oldMode], LOW);
+      digitalWrite(greenPins[modeIdx], HIGH);
+      oldMode = modeIdx;
+    }
+  }
+
   controlVoltage = mozziAnalogRead(INPUT_PIN);
-  Serial.println(controlVoltage);
+  switch (modeIdx) {
+  case 0:
+    return aSin.setFreq(frequency);
+    break;
+  case 1:
+    return aTri.setFreq(frequency);
+    break;
+  case 2:
+    return aSaw.setFreq(frequency);
+    break;
+  case 3:
+    return aSaw.setFreq(frequency);
+    break;
+  
+  default:
+    return aSquare.setFreq(frequency);
+    break;
+  }
+  
 }
 
 
-int updateAudio(){
-  return aSin.next(); // return an int signal centred around 0
+int updateAudio() {
+  switch (modeIdx) {
+  case 0:
+    return aSin.next();
+    break;
+  case 1:
+    return aTri.next();
+    break;
+  case 2:
+    return aSaw.next();
+    break;
+  case 3:
+    return aSquare.next();
+    break;
+  
+  default:
+    return aSin.next();
+    break;
+  }
 }
 
 
 void loop() {
   // Serial.println(digitalRead(BUTTON_PIN));
-  // if (newPosition != oldPosition) {
-  //   oldPosition = newPosition;
-  //   Serial.println(newPosition);
-  // }
-  // delay(10);
-
-  audioHook(); // required here
+  audioHook(); // required here  
 }
