@@ -5,7 +5,7 @@
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
 #include <Smooth.h>
-#include <tables/sin4096_int8.h> // sine table for oscillator
+#include <tables/sin2048_int8.h> // sine table for oscillator
 #include <tables/triangle2048_int8.h>
 #include <tables/saw2048_int8.h> // sine table for oscillator
 #include <tables/square_no_alias_2048_int8.h> // sine table for oscillator
@@ -31,13 +31,13 @@ uint8_t modeIdx = 0;
 uint8_t currentPin;
  
 // Mozzi Variables
-Oscil <SIN4096_NUM_CELLS, AUDIO_RATE> aSin(SIN4096_DATA);
+Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> aSin(SIN2048_DATA);
 Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSquare(SQUARE_NO_ALIAS_2048_DATA);
-Smooth <int> frequencyIdxSmoother(0.8f);
+Smooth <int> frequencyIdxSmoother(0.7f);
 
-#define CONTROL_RATE 64 // Hz, powers of 2 are most reliable
+#define CONTROL_RATE 128 // Hz, powers of 2 are most reliable
 
 void setup() {
   Serial.begin(9600);
@@ -66,10 +66,6 @@ void setup() {
 }
 
 void updateControl(){
-  // put changing controls in here
-  frequencyIdx = frequencyIdxSmoother.next(mozziAnalogRead(INPUT_PIN));
-  frequency = pgm_read_float_near(FREQUENCY_TABLE_DATA + frequencyIdx);
-
   newPosition = myEnc.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
@@ -80,6 +76,9 @@ void updateControl(){
       oldMode = modeIdx;
     }
   }
+  // put changing controls in here
+  frequencyIdx = frequencyIdxSmoother.next(mozziAnalogRead(INPUT_PIN));
+  frequency = pgm_read_float_near(FREQUENCY_TABLE_DATA + frequencyIdx);
 
   switch (modeIdx) {
   case 0:
