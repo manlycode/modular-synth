@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <pins.h>
-#include <Encoder.h>
+// #include <Encoder.h>
 
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
@@ -16,7 +16,7 @@ const uint8_t greenPins[] = { GRN_LED1, GRN_LED2, GRN_LED3, GRN_LED4 };
 const uint8_t redPins[] = { RED_LED1, RED_LED2 };
 
 
-Encoder myEnc(ENCA, ENCB);
+// Encoder myEnc(ENCA, ENCB);
 
 byte encoderCounter = 0;
 byte gain = 16;
@@ -35,9 +35,9 @@ uint8_t currentPin;
  
 // Mozzi Variables
 Oscil <SIN1024_NUM_CELLS, AUDIO_RATE> aSin(SIN1024_DATA);
-Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
-Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
-Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSquare(SQUARE_NO_ALIAS_2048_DATA);
+// Oscil <TRIANGLE2048_NUM_CELLS, AUDIO_RATE> aTri(TRIANGLE2048_DATA);
+// Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> aSaw(SAW2048_DATA);
+// Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> aSquare(SQUARE_NO_ALIAS_2048_DATA);
 
 #define CONTROL_RATE 64 // Hz, powers of 2 are most reliable
 
@@ -94,24 +94,25 @@ void updateControl(){
 
 
 int updateAudio() {
-  switch (modeIdx) {
-  case 0:
-    return ((aSin.next()+offset)*gain);
-    break;
-  case 1:
-    return ((aTri.next()+offset)*gain);
-    break;
-  case 2:
-    return ((aSaw.next()+offset)*gain);
-    break;
-  case 3:
-    return ((aSquare.next()+offset)*gain);
-    break;
+  return ((aSin.next()+offset)*gain);
+  // switch (modeIdx) {
+  // case 0:
+  //   return ((aSin.next()+offset)*gain);
+  //   break;
+  // case 1:
+  //   return ((aTri.next()+offset)*gain);
+  //   break;
+  // case 2:
+  //   return ((aSaw.next()+offset)*gain);
+  //   break;
+  // case 3:
+  //   return ((aSquare.next()+offset)*gain);
+  //   break;
   
-  default:
-    return ((aSin.next()+offset)*gain);
-    break;
-  }
+  // default:
+  //   return ((aSin.next()+offset)*gain);
+  //   break;
+  // }
 }
 
 
