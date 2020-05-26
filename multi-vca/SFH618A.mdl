@@ -1,0 +1,48 @@
+* Library of DC Input Phototransistor Output Optocoupler BJT_1mA
+* Copyright VISHAY, Inc. 2018 All Rights Reserved.
+*
+* ==== BJT_1mA ====
+* A = diode anode
+* K = diode cathode
+* C = BJT collector
+* E = BJT emitter
+*$
+.SUBCKT BJT_1mA A K C E PARAMS: REL_CTR=1
+D1 A D DIRED	;IRED
+Vsense D K 0 ;IF Current sense
+Hd R 0 Vsense 1	;I-V
+Rd R T 10K
+Cd T 0 0.2n
+Rdummy B 0 4G
+Q1 C B E [E] QBJT ;phototransistor
+* V-I
+Gpcg C B TABLE  ;Photodetector {(IC vs IF) / Q1 BF}
++ {0.7*REL_CTR*(V(T)**1.658*exp(limit(4.3-60*V(T),-50,50))*
++ ((4*10**(-9)*(REL_CTR**6))-(7*10**(-7)*(REL_CTR**5))+(5*10**(-5)*(REL_CTR**4))-(0.0015*(REL_CTR**3))+
++ (0.023*(REL_CTR**2))-(0.155*(REL_CTR))+2.2261)/100)}
++ (0,0) (10,10)
+.model DIRED D IS=1P N=1.948621 BV=6 IBV=10U
++ CJO=18.8P EG=1.424 TT=500N
+.model QBJT NPN IS=3.64P BF=100 NF=1.193293 BR=10 TF=13N TR=350n
++ CJE=5.16P CJC=18P VAF=65 ISS=0 CJS=7.74p
+.ends
+*$
+**==================================================================*
+* Note:                                                             *
+* Although models can be a useful tool in evaluating device         *
+* performance, they cannot model exact device performance           *
+* under all conditions, nor are they intended to replace            *
+* breadboarding for final verification!                             *
+*                                                                   *
+* Models provided by VISHAY Semiconductors GmbH are not             *
+* as fully representing all of the specifications and operating     *
+* characteristics of the semiconductor product to which the         *
+* model relates.                                                    *
+* The models describe the characteristics of typical devices.       *
+* In all cases, the current data sheet information for a given      *
+* device is the final design guideline and the only actual          *
+* performance specification.                                        *
+* VISHAY Semiconductors does not assume any liability arising       *
+* from the model use. VISHAY Semiconductors reserves the right to   *
+* change models without prior notice.				                *
+**==================================================================*
